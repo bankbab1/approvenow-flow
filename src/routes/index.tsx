@@ -949,7 +949,7 @@ function PreviewSection({
             tone="start"
           />
 
-          {stages.map((stage, i) => {
+          {activeStages.map((stage, i) => {
             const required =
               stage.mode === "Single"
                 ? 1
@@ -969,7 +969,7 @@ function PreviewSection({
                     <div>
                       <div className="font-semibold">{stageName}</div>
                       <div className="text-xs text-muted-foreground">
-                        Stage {i + 1} of {stages.length}
+                        Stage {i + 1} of {activeStages.length}
                       </div>
                     </div>
                     <Badge variant="outline" className="ml-auto gap-1">
