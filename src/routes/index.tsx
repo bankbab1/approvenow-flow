@@ -897,7 +897,7 @@ function SearchableSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "h-9 justify-between gap-2 px-3 font-normal",
+            "h-9 min-w-0 justify-between gap-2 px-3 font-normal",
             !value && "text-muted-foreground",
             invalid &&
               "border-destructive/60 bg-destructive/5 text-destructive hover:text-destructive",
