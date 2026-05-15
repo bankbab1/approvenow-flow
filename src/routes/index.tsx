@@ -417,7 +417,7 @@ function Index() {
                                 <Checkbox
                                   checked={stage.allRequired}
                                   onCheckedChange={(c) =>
-                                    updateStage(stage.id, { allRequired: !!c })
+                                    setAllRequired(stage.id, !!c)
                                   }
                                 />
                                 All Required
