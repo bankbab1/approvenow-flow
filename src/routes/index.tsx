@@ -156,6 +156,19 @@ function validate(stages: Stage[]): StageIssue[] {
         });
       }
     }
+    // cross-stage duplicates
+    s.approvers.forEach((a) => {
+      const otherStageIdx = stages.findIndex(
+        (other, j) => j !== i && other.approvers.includes(a),
+      );
+      if (otherStageIdx !== -1) {
+        issues.push({
+          stageId: s.id,
+          index: i,
+          message: `${a} is already used in Stage ${otherStageIdx + 1}.`,
+        });
+      }
+    });
   });
   return issues;
 }
@@ -412,23 +425,29 @@ function Index() {
               items={stages.map((s) => s.id)}
               strategy={verticalListSortingStrategy}
             >
-              {stages.map((stage, index) => (
-                <SortableStageCard
-                  key={stage.id}
-                  stage={stage}
-                  index={index}
-                  total={stages.length}
-                  stageIssues={issuesByStage.get(stage.id) ?? []}
-                  countdown={countdown[stage.id]}
-                  onUpdate={(p) => updateStage(stage.id, p)}
-                  onRemove={() => removeStage(stage.id)}
-                  onSetMode={(m) => setMode(stage.id, m)}
-                  onSetAllRequired={(c) => setAllRequired(stage.id, c)}
-                  onAddApprover={() => addApprover(stage.id)}
-                  onRemoveApprover={(idx) => removeApprover(stage.id, idx)}
-                  onSetApprover={(idx, v) => setApprover(stage.id, idx, v)}
-                />
-              ))}
+              {stages.map((stage, index) => {
+                const usedElsewhere = stages
+                  .filter((s) => s.id !== stage.id)
+                  .flatMap((s) => s.approvers);
+                return (
+                  <SortableStageCard
+                    key={stage.id}
+                    stage={stage}
+                    index={index}
+                    total={stages.length}
+                    stageIssues={issuesByStage.get(stage.id) ?? []}
+                    countdown={countdown[stage.id]}
+                    usedElsewhere={usedElsewhere}
+                    onUpdate={(p) => updateStage(stage.id, p)}
+                    onRemove={() => removeStage(stage.id)}
+                    onSetMode={(m) => setMode(stage.id, m)}
+                    onSetAllRequired={(c) => setAllRequired(stage.id, c)}
+                    onAddApprover={() => addApprover(stage.id)}
+                    onRemoveApprover={(idx) => removeApprover(stage.id, idx)}
+                    onSetApprover={(idx, v) => setApprover(stage.id, idx, v)}
+                  />
+                );
+              })}
             </SortableContext>
           </DndContext>
 
@@ -477,6 +496,7 @@ interface SortableStageCardProps {
   total: number;
   stageIssues: StageIssue[];
   countdown: number | undefined;
+  usedElsewhere: string[];
   onUpdate: (patch: Partial<Stage>) => void;
   onRemove: () => void;
   onSetMode: (m: Mode) => void;
@@ -492,6 +512,7 @@ function SortableStageCard({
   total,
   stageIssues,
   countdown,
+  usedElsewhere,
   onUpdate,
   onRemove,
   onSetMode,
@@ -685,7 +706,10 @@ function SortableStageCard({
             </div>
             <div className="space-y-2">
               {stage.approvers.map((appr, idx) => {
-                const taken = stage.approvers.filter((_, i) => i !== idx);
+                const taken = [
+                  ...stage.approvers.filter((_, i) => i !== idx),
+                  ...usedElsewhere,
+                ];
                 return (
                   <div key={idx} className="flex items-center gap-2">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
