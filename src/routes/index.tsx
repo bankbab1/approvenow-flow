@@ -499,6 +499,7 @@ function SortableStageCard({
   total,
   stageIssues,
   countdown,
+  usedElsewhere,
   onUpdate,
   onRemove,
   onSetMode,
