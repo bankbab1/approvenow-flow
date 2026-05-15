@@ -449,10 +449,13 @@ function Index() {
                             </div>
 
                             {isEffectivelyAll && (
-                              <div className="flex items-center gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-                                <Info className="h-4 w-4 shrink-0" />
+                              <div className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                                <Info className="mt-0.5 h-4 w-4 shrink-0" />
                                 <span>
-                                  You require {stage.requiredCount} of {stage.approvers.length} — that's effectively all. Consider checking <strong>All Required</strong>.
+                                  Requiring {stage.requiredCount} of {stage.approvers.length} is the same as <strong>All Required</strong>.{" "}
+                                  {countdown[stage.id] != null
+                                    ? `Auto-enabling in ${countdown[stage.id]}s…`
+                                    : "Switching automatically…"}
                                 </span>
                               </div>
                             )}
