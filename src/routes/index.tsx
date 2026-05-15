@@ -975,19 +975,18 @@ function PreviewSection({
   const skippedCount = stages.length - activeStages.length;
 
   return (
-    <Card className="mt-10">
-      <CardContent className="p-6">
-        <div className="mb-5 flex items-center gap-2">
+    <Card className="mt-8 sm:mt-10">
+      <CardContent className="p-4 sm:p-6">
+        <div className="mb-5 flex flex-wrap items-center gap-2">
           <GitBranch className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">Workflow Preview</h2>
-          <Badge variant="secondary" className="ml-auto">
-            {activeStages.length} active stage
-            {activeStages.length === 1 ? "" : "s"}
+          <Badge variant="secondary" className="ml-auto whitespace-nowrap">
+            {activeStages.length} active
             {skippedCount > 0 ? ` · ${skippedCount} skipped` : ""}
           </Badge>
         </div>
 
-        <div className="rounded-xl border bg-muted/30 p-6">
+        <div className="rounded-xl border bg-muted/30 p-3 sm:p-6">
           <MilestoneNode
             icon={<CircleDot className="h-4 w-4" />}
             label="START"
