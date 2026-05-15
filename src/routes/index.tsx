@@ -524,6 +524,7 @@ function Index() {
 interface SortableStageCardProps {
   stage: Stage;
   index: number;
+  activePosition: number | null;
   total: number;
   stageIssues: StageIssue[];
   countdown: number | undefined;
@@ -541,6 +542,7 @@ interface SortableStageCardProps {
 function SortableStageCard({
   stage,
   index,
+  activePosition,
   total,
   stageIssues,
   countdown,
