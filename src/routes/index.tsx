@@ -1057,7 +1057,7 @@ function PreviewSection({
                       ? `Requires approval from ${stage.approvers[0]} to proceed.`
                       : stage.allRequired
                         ? `All ${total} approvers must approve to proceed.`
-                        : `Any ${required} of ${total} approvers must approve to proceed.`}
+                        : `Any ${required} of ${total} approvers must approve. Approval order does not matter.`}
                   </div>
                 </div>
               </div>
