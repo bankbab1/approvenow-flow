@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus,
   Trash2,
@@ -131,6 +131,9 @@ function Index() {
   const [requestName, setRequestName] = useState("");
   const [stages, setStages] = useState<Stage[]>(() => [newStage(1)]);
   const [showPreview, setShowPreview] = useState(false);
+  // per-stage countdown (seconds remaining) before auto-enabling "All Required"
+  const [countdown, setCountdown] = useState<Record<number, number>>({});
+  const timersRef = useRef<Record<number, ReturnType<typeof setInterval>>>({});
 
   const issues = useMemo(() => validate(stages), [stages]);
   const issuesByStage = useMemo(() => {
@@ -158,7 +161,10 @@ function Index() {
       s.map((st) => {
         if (st.id !== id) return st;
         const remaining = people.find((p) => !st.approvers.includes(p)) ?? people[0];
-        return { ...st, approvers: [...st.approvers, remaining] };
+        const approvers = [...st.approvers, remaining];
+        // Keep "All" in sync so the count input shows a meaningful value
+        const requiredCount = st.allRequired ? approvers.length : st.requiredCount;
+        return { ...st, approvers, requiredCount };
       }),
     );
 
@@ -167,7 +173,9 @@ function Index() {
       s.map((st) => {
         if (st.id !== id) return st;
         const approvers = st.approvers.filter((_, i) => i !== idx);
-        const requiredCount = Math.max(1, Math.min(st.requiredCount, approvers.length || 1));
+        const requiredCount = st.allRequired
+          ? approvers.length || 1
+          : Math.max(1, Math.min(st.requiredCount, approvers.length || 1));
         return { ...st, approvers, requiredCount };
       }),
     );
@@ -189,9 +197,85 @@ function Index() {
         if (mode === "Single") {
           return { ...st, mode, approvers: st.approvers.slice(0, 1) };
         }
-        return { ...st, mode };
+        // Switching to Group → default to All Required, count matches approvers
+        return {
+          ...st,
+          mode,
+          allRequired: true,
+          requiredCount: st.approvers.length,
+        };
       }),
     );
+
+  // Smart "All" toggle: when user unchecks, drop count to a sensible majority
+  // so the input never shows a stale "2" or an effectively-all value.
+  const setAllRequired = (id: number, checked: boolean) =>
+    setStages((s) =>
+      s.map((st) => {
+        if (st.id !== id) return st;
+        if (checked) {
+          return { ...st, allRequired: true, requiredCount: st.approvers.length };
+        }
+        const suggested = Math.max(1, st.approvers.length - 1);
+        return { ...st, allRequired: false, requiredCount: suggested };
+      }),
+    );
+
+  // Auto-enable "All Required" 3s after a stage becomes effectively-all.
+  useEffect(() => {
+    stages.forEach((st) => {
+      const effectivelyAll =
+        st.mode === "Group" &&
+        !st.allRequired &&
+        st.approvers.length > 0 &&
+        st.requiredCount >= st.approvers.length;
+
+      if (effectivelyAll) {
+        if (timersRef.current[st.id]) return; // already counting
+        setCountdown((c) => ({ ...c, [st.id]: 3 }));
+        timersRef.current[st.id] = setInterval(() => {
+          setCountdown((c) => {
+            const next = (c[st.id] ?? 3) - 1;
+            if (next <= 0) {
+              clearInterval(timersRef.current[st.id]);
+              delete timersRef.current[st.id];
+              setStages((prev) =>
+                prev.map((p) =>
+                  p.id === st.id
+                    ? { ...p, allRequired: true, requiredCount: p.approvers.length }
+                    : p,
+                ),
+              );
+              const { [st.id]: _, ...rest } = c;
+              return rest;
+            }
+            return { ...c, [st.id]: next };
+          });
+        }, 1000);
+      } else if (timersRef.current[st.id]) {
+        clearInterval(timersRef.current[st.id]);
+        delete timersRef.current[st.id];
+        setCountdown((c) => {
+          const { [st.id]: _, ...rest } = c;
+          return rest;
+        });
+      }
+    });
+    // cleanup timers for removed stages
+    Object.keys(timersRef.current).forEach((k) => {
+      const id = Number(k);
+      if (!stages.find((s) => s.id === id)) {
+        clearInterval(timersRef.current[id]);
+        delete timersRef.current[id];
+      }
+    });
+  }, [stages]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(timersRef.current).forEach(clearInterval);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/40 to-background pb-32">
@@ -333,7 +417,7 @@ function Index() {
                                 <Checkbox
                                   checked={stage.allRequired}
                                   onCheckedChange={(c) =>
-                                    updateStage(stage.id, { allRequired: !!c })
+                                    setAllRequired(stage.id, !!c)
                                   }
                                 />
                                 All Required
@@ -365,10 +449,13 @@ function Index() {
                             </div>
 
                             {isEffectivelyAll && (
-                              <div className="flex items-center gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-                                <Info className="h-4 w-4 shrink-0" />
+                              <div className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                                <Info className="mt-0.5 h-4 w-4 shrink-0" />
                                 <span>
-                                  You require {stage.requiredCount} of {stage.approvers.length} — that's effectively all. Consider checking <strong>All Required</strong>.
+                                  Requiring {stage.requiredCount} of {stage.approvers.length} is the same as <strong>All Required</strong>.{" "}
+                                  {countdown[stage.id] != null
+                                    ? `Auto-enabling in ${countdown[stage.id]}s…`
+                                    : "Switching automatically…"}
                                 </span>
                               </div>
                             )}
