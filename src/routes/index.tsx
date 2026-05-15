@@ -1007,18 +1007,18 @@ function PreviewSection({
             return (
               <div key={stage.id}>
                 <Connector />
-                <div className="rounded-lg border bg-card p-4 shadow-sm">
+                <div className="rounded-lg border bg-card p-3 shadow-sm sm:p-4">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                       {i + 1}
                     </div>
-                    <div>
-                      <div className="font-semibold">{stageName}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-semibold">{stageName}</div>
                       <div className="text-xs text-muted-foreground">
                         Stage {i + 1} of {activeStages.length}
                       </div>
                     </div>
-                    <Badge variant="outline" className="ml-auto gap-1">
+                    <Badge variant="outline" className="gap-1 whitespace-nowrap">
                       {stage.mode === "Single" ? (
                         <>
                           <User className="h-3 w-3" /> Single Approver
@@ -1030,18 +1030,18 @@ function PreviewSection({
                       )}
                     </Badge>
                   </div>
-                  <div className="space-y-1.5 pl-10">
+                  <div className="space-y-1.5 pl-2 sm:pl-10">
                     {stage.approvers.map((a, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-2 text-sm text-foreground/90"
+                        className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-foreground/90"
                       >
-                        <CheckCircle2 className="h-4 w-4 text-primary/60" />
-                        <span>{a}</span>
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-primary/60" />
+                        <span className="min-w-0 break-words">{a}</span>
                         {stage.mode === "Single" && (
                           <Badge
                             variant="secondary"
-                            className="ml-1 text-[10px]"
+                            className="text-[10px] whitespace-nowrap"
                           >
                             must approve
                           </Badge>
