@@ -483,6 +483,7 @@ interface SortableStageCardProps {
   total: number;
   stageIssues: StageIssue[];
   countdown: number | undefined;
+  usedElsewhere: string[];
   onUpdate: (patch: Partial<Stage>) => void;
   onRemove: () => void;
   onSetMode: (m: Mode) => void;
