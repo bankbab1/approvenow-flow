@@ -419,10 +419,10 @@ function Index() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 pt-8">
+      <main className="mx-auto max-w-4xl px-4 pt-6 sm:px-6 sm:pt-8">
         {/* Request Form Name */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
+        <Card className="mb-6 sm:mb-8">
+          <CardContent className="p-4 sm:p-6">
             <div className="mb-2 flex items-center justify-between gap-3">
               <label className="text-sm font-medium text-foreground">
                 Request Form Name
@@ -448,7 +448,7 @@ function Index() {
         {/* Stages */}
         <div className="relative">
           <div
-            className="absolute left-6 top-2 bottom-2 w-px bg-border"
+            className="absolute left-5 top-2 bottom-2 w-px bg-border sm:left-6"
             aria-hidden
           />
 
