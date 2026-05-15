@@ -66,6 +66,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
