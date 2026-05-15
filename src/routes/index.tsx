@@ -107,6 +107,7 @@ interface Stage {
   allRequired: boolean;
   requiredCount: number;
   approvers: string[];
+  active: boolean;
 }
 
 let nextId = 1;
@@ -116,7 +117,8 @@ const newStage = (): Stage => ({
   mode: "Single",
   allRequired: true,
   requiredCount: 1,
-  approvers: [people[0]],
+  approvers: [""],
+  active: true,
 });
 
 interface StageIssue {
