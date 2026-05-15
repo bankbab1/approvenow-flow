@@ -830,6 +830,7 @@ interface SearchableSelectProps {
   disabledOptions?: string[];
   placeholder?: string;
   className?: string;
+  invalid?: boolean;
 }
 
 function SearchableSelect({
@@ -839,6 +840,7 @@ function SearchableSelect({
   disabledOptions = [],
   placeholder = "Select…",
   className,
+  invalid = false,
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   return (
@@ -851,6 +853,8 @@ function SearchableSelect({
           className={cn(
             "h-9 justify-between gap-2 px-3 font-normal",
             !value && "text-muted-foreground",
+            invalid &&
+              "border-destructive/60 bg-destructive/5 text-destructive hover:text-destructive",
             className,
           )}
         >
