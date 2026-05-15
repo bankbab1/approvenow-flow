@@ -772,6 +772,10 @@ function SortableStageCard({
                     </span>
                   </div>
 
+                  <p className="text-xs text-muted-foreground">
+                    Approvers can review in any order. The stage advances once the required number of approvals is met.
+                  </p>
+
                   {isEffectivelyAll && (
                     <div className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
                       <Info className="mt-0.5 h-4 w-4 shrink-0" />
