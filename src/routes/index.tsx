@@ -20,6 +20,8 @@ import {
   Check,
   ChevronsUpDown,
   Search,
+  Power,
+  PowerOff,
 } from "lucide-react";
 import {
   DndContext,
