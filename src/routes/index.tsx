@@ -129,12 +129,29 @@ interface StageIssue {
 
 function validate(stages: Stage[]): StageIssue[] {
   const issues: StageIssue[] = [];
+  const activeStages = stages.filter((s) => s.active);
+  if (activeStages.length === 0) {
+    issues.push({
+      stageId: -1,
+      index: -1,
+      message: "At least one stage must be active.",
+    });
+  }
   stages.forEach((s, i) => {
+    if (!s.active) return;
     if (s.approvers.length === 0) {
       issues.push({ stageId: s.id, index: i, message: "No approvers added." });
     }
+    if (s.approvers.some((a) => !a)) {
+      issues.push({
+        stageId: s.id,
+        index: i,
+        message: "Please specify approver for every slot.",
+      });
+    }
     const dup = new Set<string>();
     for (const a of s.approvers) {
+      if (!a) continue;
       if (dup.has(a)) {
         issues.push({
           stageId: s.id,
@@ -161,10 +178,11 @@ function validate(stages: Stage[]): StageIssue[] {
         });
       }
     }
-    // cross-stage duplicates
+    // cross-stage duplicates (only against other active stages, ignore empty)
     s.approvers.forEach((a) => {
+      if (!a) return;
       const otherStageIdx = stages.findIndex(
-        (other, j) => j !== i && other.approvers.includes(a),
+        (other, j) => j !== i && other.active && other.approvers.includes(a),
       );
       if (otherStageIdx !== -1) {
         issues.push({
