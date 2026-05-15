@@ -584,9 +584,11 @@ function SortableStageCard({
       <div
         className={cn(
           "absolute left-0 top-4 flex h-12 w-12 items-center justify-center rounded-full border-2 bg-card shadow-sm font-semibold",
-          hasIssue
-            ? "border-destructive text-destructive"
-            : "border-primary text-primary",
+          !stage.active
+            ? "border-muted-foreground/30 text-muted-foreground"
+            : hasIssue
+              ? "border-destructive text-destructive"
+              : "border-primary text-primary",
         )}
       >
         {index + 1}
@@ -595,11 +597,12 @@ function SortableStageCard({
       <Card
         className={cn(
           "transition-shadow hover:shadow-md",
-          hasIssue && "border-destructive/50",
+          hasIssue && stage.active && "border-destructive/50",
+          !stage.active && "border-dashed bg-muted/30",
           isDragging && "shadow-xl ring-2 ring-primary/40",
         )}
       >
-        <CardContent className="p-5">
+        <CardContent className={cn("p-5", !stage.active && "opacity-60")}>
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -610,7 +613,10 @@ function SortableStageCard({
             >
               <GripVertical className="h-4 w-4" />
             </button>
-            <Badge variant="secondary" className="gap-1">
+            <Badge
+              variant={stage.active ? "secondary" : "outline"}
+              className="gap-1"
+            >
               <Flag className="h-3 w-3" /> Stage {index + 1}
             </Badge>
             <Input
@@ -620,6 +626,28 @@ function SortableStageCard({
               className="h-9 max-w-xs flex-1 font-medium"
             />
             <div className="ml-auto" />
+            <label
+              className="flex cursor-pointer items-center gap-2 rounded-md border bg-background px-2.5 py-1.5"
+              title={stage.active ? "Stage is active" : "Stage is skipped"}
+            >
+              {stage.active ? (
+                <Power className="h-3.5 w-3.5 text-primary" />
+              ) : (
+                <PowerOff className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+              <span
+                className={cn(
+                  "text-xs font-medium",
+                  stage.active ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {stage.active ? "Active" : "Skipped"}
+              </span>
+              <Switch
+                checked={stage.active}
+                onCheckedChange={(c) => onToggleActive(!!c)}
+              />
+            </label>
             <Button
               variant="ghost"
               size="sm"
