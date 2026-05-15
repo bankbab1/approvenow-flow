@@ -455,11 +455,15 @@ function Index() {
                   .filter((s) => s.id !== stage.id && s.active)
                   .flatMap((s) => s.approvers)
                   .filter(Boolean);
+                const activePosition = stage.active
+                  ? stages.slice(0, index + 1).filter((s) => s.active).length
+                  : null;
                 return (
                   <SortableStageCard
                     key={stage.id}
                     stage={stage}
                     index={index}
+                    activePosition={activePosition}
                     total={stages.length}
                     stageIssues={issuesByStage.get(stage.id) ?? []}
                     countdown={countdown[stage.id]}
