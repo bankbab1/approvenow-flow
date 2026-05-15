@@ -693,7 +693,10 @@ function SortableStageCard({
             </div>
             <div className="space-y-2">
               {stage.approvers.map((appr, idx) => {
-                const taken = stage.approvers.filter((_, i) => i !== idx);
+                const taken = [
+                  ...stage.approvers.filter((_, i) => i !== idx),
+                  ...usedElsewhere,
+                ];
                 return (
                   <div key={idx} className="flex items-center gap-2">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
