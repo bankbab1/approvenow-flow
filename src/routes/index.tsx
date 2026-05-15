@@ -156,6 +156,19 @@ function validate(stages: Stage[]): StageIssue[] {
         });
       }
     }
+    // cross-stage duplicates
+    s.approvers.forEach((a) => {
+      const otherStageIdx = stages.findIndex(
+        (other, j) => j !== i && other.approvers.includes(a),
+      );
+      if (otherStageIdx !== -1) {
+        issues.push({
+          stageId: s.id,
+          index: i,
+          message: `${a} is already used in Stage ${otherStageIdx + 1}.`,
+        });
+      }
+    });
   });
   return issues;
 }
