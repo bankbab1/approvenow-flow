@@ -452,8 +452,9 @@ function Index() {
             >
               {stages.map((stage, index) => {
                 const usedElsewhere = stages
-                  .filter((s) => s.id !== stage.id)
-                  .flatMap((s) => s.approvers);
+                  .filter((s) => s.id !== stage.id && s.active)
+                  .flatMap((s) => s.approvers)
+                  .filter(Boolean);
                 return (
                   <SortableStageCard
                     key={stage.id}
@@ -465,6 +466,7 @@ function Index() {
                     usedElsewhere={usedElsewhere}
                     onUpdate={(p) => updateStage(stage.id, p)}
                     onRemove={() => removeStage(stage.id)}
+                    onToggleActive={(a) => toggleActive(stage.id, a)}
                     onSetMode={(m) => setMode(stage.id, m)}
                     onSetAllRequired={(c) => setAllRequired(stage.id, c)}
                     onAddApprover={() => addApprover(stage.id)}
