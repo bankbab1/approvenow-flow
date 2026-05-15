@@ -323,6 +323,7 @@ function Index() {
   useEffect(() => {
     stages.forEach((st) => {
       const effectivelyAll =
+        st.active &&
         st.mode === "Group" &&
         !st.allRequired &&
         st.approvers.length > 0 &&
