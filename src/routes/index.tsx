@@ -412,23 +412,29 @@ function Index() {
               items={stages.map((s) => s.id)}
               strategy={verticalListSortingStrategy}
             >
-              {stages.map((stage, index) => (
-                <SortableStageCard
-                  key={stage.id}
-                  stage={stage}
-                  index={index}
-                  total={stages.length}
-                  stageIssues={issuesByStage.get(stage.id) ?? []}
-                  countdown={countdown[stage.id]}
-                  onUpdate={(p) => updateStage(stage.id, p)}
-                  onRemove={() => removeStage(stage.id)}
-                  onSetMode={(m) => setMode(stage.id, m)}
-                  onSetAllRequired={(c) => setAllRequired(stage.id, c)}
-                  onAddApprover={() => addApprover(stage.id)}
-                  onRemoveApprover={(idx) => removeApprover(stage.id, idx)}
-                  onSetApprover={(idx, v) => setApprover(stage.id, idx, v)}
-                />
-              ))}
+              {stages.map((stage, index) => {
+                const usedElsewhere = stages
+                  .filter((s) => s.id !== stage.id)
+                  .flatMap((s) => s.approvers);
+                return (
+                  <SortableStageCard
+                    key={stage.id}
+                    stage={stage}
+                    index={index}
+                    total={stages.length}
+                    stageIssues={issuesByStage.get(stage.id) ?? []}
+                    countdown={countdown[stage.id]}
+                    usedElsewhere={usedElsewhere}
+                    onUpdate={(p) => updateStage(stage.id, p)}
+                    onRemove={() => removeStage(stage.id)}
+                    onSetMode={(m) => setMode(stage.id, m)}
+                    onSetAllRequired={(c) => setAllRequired(stage.id, c)}
+                    onAddApprover={() => addApprover(stage.id)}
+                    onRemoveApprover={(idx) => removeApprover(stage.id, idx)}
+                    onSetApprover={(idx, v) => setApprover(stage.id, idx, v)}
+                  />
+                );
+              })}
             </SortableContext>
           </DndContext>
 
