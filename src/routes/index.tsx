@@ -594,7 +594,7 @@ function SortableStageCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "relative pl-16 pb-6",
+        "relative pl-14 pb-6 sm:pl-16",
         isDragging && "z-20 opacity-90",
       )}
     >
