@@ -249,9 +249,7 @@ function Index() {
     setStages((s) =>
       s.map((st) => {
         if (st.id !== id) return st;
-        const remaining =
-          people.find((p) => !st.approvers.includes(p)) ?? people[0];
-        const approvers = [...st.approvers, remaining];
+        const approvers = [...st.approvers, ""];
         const requiredCount = st.allRequired ? approvers.length : st.requiredCount;
         return { ...st, approvers, requiredCount };
       }),
