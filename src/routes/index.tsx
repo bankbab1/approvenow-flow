@@ -935,7 +935,9 @@ function PreviewSection({
           <GitBranch className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">Workflow Preview</h2>
           <Badge variant="secondary" className="ml-auto">
-            {stages.length} stage{stages.length > 1 ? "s" : ""}
+            {activeStages.length} active stage
+            {activeStages.length === 1 ? "" : "s"}
+            {skippedCount > 0 ? ` · ${skippedCount} skipped` : ""}
           </Badge>
         </div>
 
