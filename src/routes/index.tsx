@@ -67,6 +67,17 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -379,7 +390,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/40 to-background pb-32">
       <header className="border-b bg-card/60 backdrop-blur supports-[backdrop-filter]:bg-card/50 sticky top-0 z-30">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-6 py-4">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
               <Workflow className="h-5 w-5" />
@@ -408,10 +419,10 @@ function Index() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 pt-8">
+      <main className="mx-auto max-w-4xl px-4 pt-6 sm:px-6 sm:pt-8">
         {/* Request Form Name */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
+        <Card className="mb-6 sm:mb-8">
+          <CardContent className="p-4 sm:p-6">
             <div className="mb-2 flex items-center justify-between gap-3">
               <label className="text-sm font-medium text-foreground">
                 Request Form Name
@@ -437,7 +448,7 @@ function Index() {
         {/* Stages */}
         <div className="relative">
           <div
-            className="absolute left-6 top-2 bottom-2 w-px bg-border"
+            className="absolute left-5 top-2 bottom-2 w-px bg-border sm:left-6"
             aria-hidden
           />
 
@@ -455,11 +466,15 @@ function Index() {
                   .filter((s) => s.id !== stage.id && s.active)
                   .flatMap((s) => s.approvers)
                   .filter(Boolean);
+                const activePosition = stage.active
+                  ? stages.slice(0, index + 1).filter((s) => s.active).length
+                  : null;
                 return (
                   <SortableStageCard
                     key={stage.id}
                     stage={stage}
                     index={index}
+                    activePosition={activePosition}
                     total={stages.length}
                     stageIssues={issuesByStage.get(stage.id) ?? []}
                     countdown={countdown[stage.id]}
@@ -479,8 +494,8 @@ function Index() {
           </DndContext>
 
           {/* Ghost add card */}
-          <div className="relative pl-16">
-            <div className="absolute left-0 top-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 bg-card text-muted-foreground">
+          <div className="relative pl-14 sm:pl-16">
+            <div className="absolute left-0 top-4 flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 bg-card text-muted-foreground sm:h-12 sm:w-12">
               <Plus className="h-5 w-5" />
             </div>
             <button
@@ -520,6 +535,7 @@ function Index() {
 interface SortableStageCardProps {
   stage: Stage;
   index: number;
+  activePosition: number | null;
   total: number;
   stageIssues: StageIssue[];
   countdown: number | undefined;
@@ -537,6 +553,7 @@ interface SortableStageCardProps {
 function SortableStageCard({
   stage,
   index,
+  activePosition,
   total,
   stageIssues,
   countdown,
@@ -577,21 +594,26 @@ function SortableStageCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "relative pl-16 pb-6",
+        "relative pl-14 pb-6 sm:pl-16",
         isDragging && "z-20 opacity-90",
       )}
     >
       <div
         className={cn(
-          "absolute left-0 top-4 flex h-12 w-12 items-center justify-center rounded-full border-2 bg-card shadow-sm font-semibold",
+          "absolute left-0 top-4 flex h-10 w-10 items-center justify-center rounded-full border-2 bg-card shadow-sm font-semibold sm:h-12 sm:w-12",
           !stage.active
-            ? "border-muted-foreground/30 text-muted-foreground"
+            ? "border-dashed border-muted-foreground/40 text-transparent"
             : hasIssue
               ? "border-destructive text-destructive"
               : "border-primary text-primary",
         )}
+        aria-label={
+          stage.active
+            ? `Stage ${activePosition}`
+            : "Skipped stage"
+        }
       >
-        {index + 1}
+        {stage.active ? activePosition : ""}
       </div>
 
       <Card
@@ -602,8 +624,8 @@ function SortableStageCard({
           isDragging && "shadow-xl ring-2 ring-primary/40",
         )}
       >
-        <CardContent className={cn("p-5", !stage.active && "opacity-60")}>
-          <div className="mb-4 flex flex-wrap items-center gap-3">
+        <CardContent className={cn("p-4 sm:p-5", !stage.active && "opacity-70")}>
+          <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               type="button"
               {...attributes}
@@ -617,17 +639,18 @@ function SortableStageCard({
               variant={stage.active ? "secondary" : "outline"}
               className="gap-1"
             >
-              <Flag className="h-3 w-3" /> Stage {index + 1}
+              <Flag className="h-3 w-3" />
+              {stage.active ? `Stage ${activePosition}` : "Skipped"}
             </Badge>
             <Input
               value={stage.name}
               onChange={(e) => onUpdate({ name: e.target.value })}
               placeholder={placeholder}
-              className="h-9 max-w-xs flex-1 font-medium"
+              className="order-last h-9 w-full font-medium sm:order-none sm:max-w-xs sm:flex-1"
             />
-            <div className="ml-auto" />
+            <div className="hidden sm:block sm:ml-auto" />
             <label
-              className="flex cursor-pointer items-center gap-2 rounded-md border bg-background px-2.5 py-1.5"
+              className="ml-auto flex cursor-pointer items-center gap-2 rounded-md border bg-background px-2.5 py-1.5 sm:ml-0"
               title={stage.active ? "Stage is active" : "Stage is skipped"}
             >
               {stage.active ? (
@@ -637,7 +660,7 @@ function SortableStageCard({
               )}
               <span
                 className={cn(
-                  "text-xs font-medium",
+                  "hidden text-xs font-medium sm:inline",
                   stage.active ? "text-foreground" : "text-muted-foreground",
                 )}
               >
@@ -648,15 +671,38 @@ function SortableStageCard({
                 onCheckedChange={(c) => onToggleActive(!!c)}
               />
             </label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRemove}
-              disabled={total === 1}
-              className="text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={total === 1}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this stage?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {stage.name.trim()
+                      ? `"${stage.name.trim()}" will be removed from the workflow.`
+                      : "This stage will be removed from the workflow."}{" "}
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={onRemove}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
 
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
