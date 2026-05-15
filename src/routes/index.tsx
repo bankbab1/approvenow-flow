@@ -20,6 +20,8 @@ import {
   Check,
   ChevronsUpDown,
   Search,
+  Power,
+  PowerOff,
 } from "lucide-react";
 import {
   DndContext,
@@ -64,6 +66,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -104,6 +107,7 @@ interface Stage {
   allRequired: boolean;
   requiredCount: number;
   approvers: string[];
+  active: boolean;
 }
 
 let nextId = 1;
@@ -113,7 +117,8 @@ const newStage = (): Stage => ({
   mode: "Single",
   allRequired: true,
   requiredCount: 1,
-  approvers: [people[0]],
+  approvers: [""],
+  active: true,
 });
 
 interface StageIssue {
@@ -124,12 +129,29 @@ interface StageIssue {
 
 function validate(stages: Stage[]): StageIssue[] {
   const issues: StageIssue[] = [];
+  const activeStages = stages.filter((s) => s.active);
+  if (activeStages.length === 0) {
+    issues.push({
+      stageId: -1,
+      index: -1,
+      message: "At least one stage must be active.",
+    });
+  }
   stages.forEach((s, i) => {
+    if (!s.active) return;
     if (s.approvers.length === 0) {
       issues.push({ stageId: s.id, index: i, message: "No approvers added." });
     }
+    if (s.approvers.some((a) => !a)) {
+      issues.push({
+        stageId: s.id,
+        index: i,
+        message: "Please specify approver for every slot.",
+      });
+    }
     const dup = new Set<string>();
     for (const a of s.approvers) {
+      if (!a) continue;
       if (dup.has(a)) {
         issues.push({
           stageId: s.id,
@@ -156,10 +178,11 @@ function validate(stages: Stage[]): StageIssue[] {
         });
       }
     }
-    // cross-stage duplicates
+    // cross-stage duplicates (only against other active stages, ignore empty)
     s.approvers.forEach((a) => {
+      if (!a) return;
       const otherStageIdx = stages.findIndex(
-        (other, j) => j !== i && other.approvers.includes(a),
+        (other, j) => j !== i && other.active && other.approvers.includes(a),
       );
       if (otherStageIdx !== -1) {
         issues.push({
@@ -213,6 +236,9 @@ function Index() {
   const removeStage = (id: number) =>
     setStages((s) => s.filter((st) => st.id !== id));
 
+  const toggleActive = (id: number, active: boolean) =>
+    setStages((s) => s.map((st) => (st.id === id ? { ...st, active } : st)));
+
   const resetAll = () => {
     Object.values(timersRef.current).forEach(clearInterval);
     timersRef.current = {};
@@ -226,9 +252,7 @@ function Index() {
     setStages((s) =>
       s.map((st) => {
         if (st.id !== id) return st;
-        const remaining =
-          people.find((p) => !st.approvers.includes(p)) ?? people[0];
-        const approvers = [...st.approvers, remaining];
+        const approvers = [...st.approvers, ""];
         const requiredCount = st.allRequired ? approvers.length : st.requiredCount;
         return { ...st, approvers, requiredCount };
       }),
@@ -299,6 +323,7 @@ function Index() {
   useEffect(() => {
     stages.forEach((st) => {
       const effectivelyAll =
+        st.active &&
         st.mode === "Group" &&
         !st.allRequired &&
         st.approvers.length > 0 &&
@@ -427,8 +452,9 @@ function Index() {
             >
               {stages.map((stage, index) => {
                 const usedElsewhere = stages
-                  .filter((s) => s.id !== stage.id)
-                  .flatMap((s) => s.approvers);
+                  .filter((s) => s.id !== stage.id && s.active)
+                  .flatMap((s) => s.approvers)
+                  .filter(Boolean);
                 return (
                   <SortableStageCard
                     key={stage.id}
@@ -440,6 +466,7 @@ function Index() {
                     usedElsewhere={usedElsewhere}
                     onUpdate={(p) => updateStage(stage.id, p)}
                     onRemove={() => removeStage(stage.id)}
+                    onToggleActive={(a) => toggleActive(stage.id, a)}
                     onSetMode={(m) => setMode(stage.id, m)}
                     onSetAllRequired={(c) => setAllRequired(stage.id, c)}
                     onAddApprover={() => addApprover(stage.id)}
@@ -499,6 +526,7 @@ interface SortableStageCardProps {
   usedElsewhere: string[];
   onUpdate: (patch: Partial<Stage>) => void;
   onRemove: () => void;
+  onToggleActive: (active: boolean) => void;
   onSetMode: (m: Mode) => void;
   onSetAllRequired: (c: boolean) => void;
   onAddApprover: () => void;
@@ -515,6 +543,7 @@ function SortableStageCard({
   usedElsewhere,
   onUpdate,
   onRemove,
+  onToggleActive,
   onSetMode,
   onSetAllRequired,
   onAddApprover,
@@ -555,9 +584,11 @@ function SortableStageCard({
       <div
         className={cn(
           "absolute left-0 top-4 flex h-12 w-12 items-center justify-center rounded-full border-2 bg-card shadow-sm font-semibold",
-          hasIssue
-            ? "border-destructive text-destructive"
-            : "border-primary text-primary",
+          !stage.active
+            ? "border-muted-foreground/30 text-muted-foreground"
+            : hasIssue
+              ? "border-destructive text-destructive"
+              : "border-primary text-primary",
         )}
       >
         {index + 1}
@@ -566,11 +597,12 @@ function SortableStageCard({
       <Card
         className={cn(
           "transition-shadow hover:shadow-md",
-          hasIssue && "border-destructive/50",
+          hasIssue && stage.active && "border-destructive/50",
+          !stage.active && "border-dashed bg-muted/30",
           isDragging && "shadow-xl ring-2 ring-primary/40",
         )}
       >
-        <CardContent className="p-5">
+        <CardContent className={cn("p-5", !stage.active && "opacity-60")}>
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -581,7 +613,10 @@ function SortableStageCard({
             >
               <GripVertical className="h-4 w-4" />
             </button>
-            <Badge variant="secondary" className="gap-1">
+            <Badge
+              variant={stage.active ? "secondary" : "outline"}
+              className="gap-1"
+            >
               <Flag className="h-3 w-3" /> Stage {index + 1}
             </Badge>
             <Input
@@ -591,6 +626,28 @@ function SortableStageCard({
               className="h-9 max-w-xs flex-1 font-medium"
             />
             <div className="ml-auto" />
+            <label
+              className="flex cursor-pointer items-center gap-2 rounded-md border bg-background px-2.5 py-1.5"
+              title={stage.active ? "Stage is active" : "Stage is skipped"}
+            >
+              {stage.active ? (
+                <Power className="h-3.5 w-3.5 text-primary" />
+              ) : (
+                <PowerOff className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+              <span
+                className={cn(
+                  "text-xs font-medium",
+                  stage.active ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {stage.active ? "Active" : "Skipped"}
+              </span>
+              <Switch
+                checked={stage.active}
+                onCheckedChange={(c) => onToggleActive(!!c)}
+              />
+            </label>
             <Button
               variant="ghost"
               size="sm"
@@ -712,15 +769,23 @@ function SortableStageCard({
                 ];
                 return (
                   <div key={idx} className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                      {appr.charAt(0)}
+                    <div
+                      className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium",
+                        appr
+                          ? "bg-muted"
+                          : "border-2 border-dashed border-destructive/50 text-destructive",
+                      )}
+                    >
+                      {appr ? appr.charAt(0) : "?"}
                     </div>
                     <SearchableSelect
                       value={appr}
                       onChange={(v) => onSetApprover(idx, v)}
                       options={people}
                       disabledOptions={taken}
-                      placeholder="Select approver"
+                      placeholder="Please specify approver"
+                      invalid={!appr}
                       className="flex-1"
                     />
                     {stage.mode === "Group" && stage.approvers.length > 1 && (
@@ -765,6 +830,7 @@ interface SearchableSelectProps {
   disabledOptions?: string[];
   placeholder?: string;
   className?: string;
+  invalid?: boolean;
 }
 
 function SearchableSelect({
@@ -774,6 +840,7 @@ function SearchableSelect({
   disabledOptions = [],
   placeholder = "Select…",
   className,
+  invalid = false,
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   return (
@@ -786,6 +853,8 @@ function SearchableSelect({
           className={cn(
             "h-9 justify-between gap-2 px-3 font-normal",
             !value && "text-muted-foreground",
+            invalid &&
+              "border-destructive/60 bg-destructive/5 text-destructive hover:text-destructive",
             className,
           )}
         >
@@ -856,6 +925,8 @@ function PreviewSection({
 }) {
   if (!isValid) return null;
   const title = requestName || "Untitled Request";
+  const activeStages = stages.filter((s) => s.active);
+  const skippedCount = stages.length - activeStages.length;
 
   return (
     <Card className="mt-10">
@@ -864,7 +935,9 @@ function PreviewSection({
           <GitBranch className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">Workflow Preview</h2>
           <Badge variant="secondary" className="ml-auto">
-            {stages.length} stage{stages.length > 1 ? "s" : ""}
+            {activeStages.length} active stage
+            {activeStages.length === 1 ? "" : "s"}
+            {skippedCount > 0 ? ` · ${skippedCount} skipped` : ""}
           </Badge>
         </div>
 
@@ -876,7 +949,7 @@ function PreviewSection({
             tone="start"
           />
 
-          {stages.map((stage, i) => {
+          {activeStages.map((stage, i) => {
             const required =
               stage.mode === "Single"
                 ? 1
@@ -896,7 +969,7 @@ function PreviewSection({
                     <div>
                       <div className="font-semibold">{stageName}</div>
                       <div className="text-xs text-muted-foreground">
-                        Stage {i + 1} of {stages.length}
+                        Stage {i + 1} of {activeStages.length}
                       </div>
                     </div>
                     <Badge variant="outline" className="ml-auto gap-1">
