@@ -388,7 +388,7 @@ function Index() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-muted/40 to-background pb-32">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-muted/40 to-background pb-32">
       <header className="border-b bg-card/60 backdrop-blur supports-[backdrop-filter]:bg-card/50 sticky top-0 z-30">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
@@ -897,7 +897,7 @@ function SearchableSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "h-9 justify-between gap-2 px-3 font-normal",
+            "h-9 min-w-0 justify-between gap-2 px-3 font-normal",
             !value && "text-muted-foreground",
             invalid &&
               "border-destructive/60 bg-destructive/5 text-destructive hover:text-destructive",
@@ -975,19 +975,18 @@ function PreviewSection({
   const skippedCount = stages.length - activeStages.length;
 
   return (
-    <Card className="mt-10">
-      <CardContent className="p-6">
-        <div className="mb-5 flex items-center gap-2">
+    <Card className="mt-8 sm:mt-10">
+      <CardContent className="p-4 sm:p-6">
+        <div className="mb-5 flex flex-wrap items-center gap-2">
           <GitBranch className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">Workflow Preview</h2>
-          <Badge variant="secondary" className="ml-auto">
-            {activeStages.length} active stage
-            {activeStages.length === 1 ? "" : "s"}
+          <Badge variant="secondary" className="ml-auto whitespace-nowrap">
+            {activeStages.length} active
             {skippedCount > 0 ? ` · ${skippedCount} skipped` : ""}
           </Badge>
         </div>
 
-        <div className="rounded-xl border bg-muted/30 p-6">
+        <div className="rounded-xl border bg-muted/30 p-3 sm:p-6">
           <MilestoneNode
             icon={<CircleDot className="h-4 w-4" />}
             label="START"
@@ -1007,18 +1006,18 @@ function PreviewSection({
             return (
               <div key={stage.id}>
                 <Connector />
-                <div className="rounded-lg border bg-card p-4 shadow-sm">
+                <div className="rounded-lg border bg-card p-3 shadow-sm sm:p-4">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                       {i + 1}
                     </div>
-                    <div>
-                      <div className="font-semibold">{stageName}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-semibold">{stageName}</div>
                       <div className="text-xs text-muted-foreground">
                         Stage {i + 1} of {activeStages.length}
                       </div>
                     </div>
-                    <Badge variant="outline" className="ml-auto gap-1">
+                    <Badge variant="outline" className="gap-1 whitespace-nowrap">
                       {stage.mode === "Single" ? (
                         <>
                           <User className="h-3 w-3" /> Single Approver
@@ -1030,18 +1029,18 @@ function PreviewSection({
                       )}
                     </Badge>
                   </div>
-                  <div className="space-y-1.5 pl-10">
+                  <div className="space-y-1.5 pl-2 sm:pl-10">
                     {stage.approvers.map((a, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-2 text-sm text-foreground/90"
+                        className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-foreground/90"
                       >
-                        <CheckCircle2 className="h-4 w-4 text-primary/60" />
-                        <span>{a}</span>
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-primary/60" />
+                        <span className="min-w-0 break-words">{a}</span>
                         {stage.mode === "Single" && (
                           <Badge
                             variant="secondary"
-                            className="ml-1 text-[10px]"
+                            className="text-[10px] whitespace-nowrap"
                           >
                             must approve
                           </Badge>
