@@ -236,6 +236,9 @@ function Index() {
   const removeStage = (id: number) =>
     setStages((s) => s.filter((st) => st.id !== id));
 
+  const toggleActive = (id: number, active: boolean) =>
+    setStages((s) => s.map((st) => (st.id === id ? { ...st, active } : st)));
+
   const resetAll = () => {
     Object.values(timersRef.current).forEach(clearInterval);
     timersRef.current = {};
