@@ -494,8 +494,8 @@ function Index() {
           </DndContext>
 
           {/* Ghost add card */}
-          <div className="relative pl-16">
-            <div className="absolute left-0 top-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 bg-card text-muted-foreground">
+          <div className="relative pl-14 sm:pl-16">
+            <div className="absolute left-0 top-4 flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 bg-card text-muted-foreground sm:h-12 sm:w-12">
               <Plus className="h-5 w-5" />
             </div>
             <button
