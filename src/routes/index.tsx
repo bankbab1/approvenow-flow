@@ -769,15 +769,23 @@ function SortableStageCard({
                 ];
                 return (
                   <div key={idx} className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                      {appr.charAt(0)}
+                    <div
+                      className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium",
+                        appr
+                          ? "bg-muted"
+                          : "border-2 border-dashed border-destructive/50 text-destructive",
+                      )}
+                    >
+                      {appr ? appr.charAt(0) : "?"}
                     </div>
                     <SearchableSelect
                       value={appr}
                       onChange={(v) => onSetApprover(idx, v)}
                       options={people}
                       disabledOptions={taken}
-                      placeholder="Select approver"
+                      placeholder="Please specify approver"
+                      invalid={!appr}
                       className="flex-1"
                     />
                     {stage.mode === "Group" && stage.approvers.length > 1 && (
