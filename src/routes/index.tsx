@@ -526,6 +526,7 @@ interface SortableStageCardProps {
   usedElsewhere: string[];
   onUpdate: (patch: Partial<Stage>) => void;
   onRemove: () => void;
+  onToggleActive: (active: boolean) => void;
   onSetMode: (m: Mode) => void;
   onSetAllRequired: (c: boolean) => void;
   onAddApprover: () => void;
@@ -542,6 +543,7 @@ function SortableStageCard({
   usedElsewhere,
   onUpdate,
   onRemove,
+  onToggleActive,
   onSetMode,
   onSetAllRequired,
   onAddApprover,
