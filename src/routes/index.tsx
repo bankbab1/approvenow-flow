@@ -439,7 +439,7 @@ function Index() {
             <Input
               value={requestName}
               onChange={(e) => setRequestName(e.target.value)}
-              placeholder="Ex: Salary Adjustment Request"
+              placeholder="Ex: Development Timeline Evaluation"
               className="h-11 text-base"
             />
           </CardContent>
