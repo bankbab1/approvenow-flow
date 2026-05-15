@@ -925,6 +925,8 @@ function PreviewSection({
 }) {
   if (!isValid) return null;
   const title = requestName || "Untitled Request";
+  const activeStages = stages.filter((s) => s.active);
+  const skippedCount = stages.length - activeStages.length;
 
   return (
     <Card className="mt-10">
