@@ -1512,6 +1512,17 @@ function PreviewSection({
                       : stage.allRequired
                         ? `All ${total} approvers must approve to proceed.`
                         : `Any ${required} of ${total} approvers must approve. Approval order does not matter.`}
+                    {stage.mode === "Group" && (
+                      <div className="mt-1">
+                        <span className="font-medium">Rejection rule: </span>
+                        {stage.rejectionRule === "veto" &&
+                          "any rejection vetoes the stage."}
+                        {stage.rejectionRule === "majority" &&
+                          "decided by majority once over half respond."}
+                        {stage.rejectionRule === "approvalOnly" &&
+                          "first to reach approval threshold wins; rejections ignored."}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
