@@ -1195,6 +1195,41 @@ function SortableStageCard({
                     Approvers can review in any order. The stage advances once the required number of approvals is met.
                   </p>
 
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      Rejection Rule
+                    </label>
+                    <Select
+                      value={stage.rejectionRule}
+                      onValueChange={(v) =>
+                        onUpdate({ rejectionRule: v as RejectionRule })
+                      }
+                    >
+                      <SelectTrigger className="h-9 w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="veto">
+                          Any rejection vetoes the stage (safest)
+                        </SelectItem>
+                        <SelectItem value="majority">
+                          Wait for majority of responses to decide
+                        </SelectItem>
+                        <SelectItem value="approvalOnly">
+                          First to reach approval threshold wins (ignore rejections)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {stage.rejectionRule === "veto" &&
+                        "As soon as anyone rejects, the stage fails immediately — even if others have approved."}
+                      {stage.rejectionRule === "majority" &&
+                        "Wait until more than half of approvers respond, then approve or reject by majority."}
+                      {stage.rejectionRule === "approvalOnly" &&
+                        "Stage passes the moment the approval count is reached. Rejections are not counted — first response wins."}
+                    </p>
+                  </div>
+
                   {isEffectivelyAll && (
                     <div className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
                       <Info className="mt-0.5 h-4 w-4 shrink-0" />
