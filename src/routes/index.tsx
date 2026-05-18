@@ -1521,11 +1521,13 @@ function PreviewSection({
                       <div className="mt-1">
                         <span className="font-medium">Rejection rule: </span>
                         {stage.rejectionRule === "veto" &&
-                          "any rejection vetoes the stage."}
-                        {stage.rejectionRule === "majority" &&
-                          "decided by majority once over half respond."}
-                        {stage.rejectionRule === "approvalOnly" &&
-                          "first to reach approval threshold wins; rejections ignored."}
+                          "any rejection fails the stage immediately."}
+                        {stage.rejectionRule === "firstWins" &&
+                          "first response wins; others are notified for awareness."}
+                        {stage.rejectionRule === "symmetric" &&
+                          "approve at threshold; reject once threshold becomes impossible."}
+                        {stage.rejectionRule === "unanimous" &&
+                          "every approver must respond; any rejection fails the stage."}
                       </div>
                     )}
                   </div>
