@@ -1226,12 +1226,16 @@ function SortableStageCard({
                         <SelectItem value="firstWins">
                           First response wins (notify others)
                         </SelectItem>
-                        <SelectItem value="symmetric">
-                          Symmetric threshold (approve N / reject when impossible)
-                        </SelectItem>
-                        <SelectItem value="unanimous">
-                          Unanimous decision required
-                        </SelectItem>
+                        {!stage.allRequired && (
+                          <SelectItem value="symmetric">
+                            Symmetric threshold (approve N / reject when impossible)
+                          </SelectItem>
+                        )}
+                        {stage.allRequired && (
+                          <SelectItem value="unanimous">
+                            Unanimous decision required
+                          </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <p className="mt-1 text-xs text-muted-foreground">
