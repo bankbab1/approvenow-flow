@@ -22,6 +22,7 @@ import {
   Search,
   Power,
   PowerOff,
+  HelpCircle,
 } from "lucide-react";
 import {
   DndContext,
