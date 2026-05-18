@@ -22,6 +22,7 @@ import {
   Search,
   Power,
   PowerOff,
+  HelpCircle,
 } from "lucide-react";
 import {
   DndContext,
@@ -58,6 +59,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
@@ -550,6 +558,99 @@ const newStage = (): Stage => ({
   active: true,
   rejectionRule: "veto",
 });
+
+function RejectionRuleHelpDialog() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex cursor-pointer items-center gap-1 rounded-sm px-1 text-muted-foreground transition hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        title="Learn about rejection rules"
+      >
+        <HelpCircle className="h-3.5 w-3.5" />
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Rejection Rules — Example Scenarios</DialogTitle>
+            <DialogDescription>
+              How each rule behaves in common multi-approver situations
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-2 space-y-4 text-sm">
+            {/* Veto */}
+            <div className="rounded-lg border bg-muted/40 p-3">
+              <div className="mb-1 flex items-center gap-2 font-semibold">
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+                Veto on Rejection (Recommended)
+              </div>
+              <p className="text-muted-foreground">
+                Any single rejection immediately kills the stage — no matter how many others approved.
+              </p>
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <p><strong className="text-foreground">Scenario 2-of-3:</strong></p>
+                <p className="pl-3">• A rejects → <span className="font-medium text-red-500">Stage fails immediately</span>. B and C never vote.</p>
+                <p className="pl-3">• B and C both approve → <span className="font-medium text-green-600">Stage passes</span>. A never votes.</p>
+              </div>
+            </div>
+
+            {/* First Wins */}
+            <div className="rounded-lg border bg-muted/40 p-3">
+              <div className="mb-1 flex items-center gap-2 font-semibold">
+                <Flag className="h-4 w-4 text-blue-500" />
+                First Response Wins
+              </div>
+              <p className="text-muted-foreground">
+                The very first action (approve OR reject) is final. Everyone else gets a notification for awareness.
+              </p>
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <p><strong className="text-foreground">Scenario 2-of-3:</strong></p>
+                <p className="pl-3">• A rejects first → <span className="font-medium text-red-500">Stage fails</span>. B & C are notified: “Already rejected by A.”</p>
+                <p className="pl-3">• B approves first → <span className="font-medium text-green-600">Stage passes</span>. A & C are notified: “Already approved by B.”</p>
+              </div>
+            </div>
+
+            {/* Symmetric */}
+            <div className="rounded-lg border bg-muted/40 p-3">
+              <div className="mb-1 flex items-center gap-2 font-semibold">
+                <CheckCircle2 className="h-4 w-4 text-amber-500" />
+                Symmetric Threshold (X of Y)
+              </div>
+              <p className="text-muted-foreground">
+                Stage passes when enough approvals are collected. It fails only when rejections mathematically make the approval target unreachable.
+              </p>
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <p><strong className="text-foreground">Scenario 2-of-3:</strong></p>
+                <p className="pl-3">• A rejects, B approves, C approves → <span className="font-medium text-green-600">Stage passes</span> (2 approvals reached).</p>
+                <p className="pl-3">• A rejects, B rejects → <span className="font-medium text-red-500">Stage fails</span> (only 1 person left, can’t reach 2).</p>
+                <p className="pl-3">• Math: max rejections allowed = 3 − 2 = 1.</p>
+              </div>
+            </div>
+
+            {/* Unanimous */}
+            <div className="rounded-lg border bg-muted/40 p-3">
+              <div className="mb-1 flex items-center gap-2 font-semibold">
+                <Users className="h-4 w-4 text-purple-500" />
+                Unanimous Decision (All Required)
+              </div>
+              <p className="text-muted-foreground">
+                Waits for every approver. Passes only if 100% approve; any single rejection fails the stage.
+              </p>
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <p><strong className="text-foreground">Scenario 3-of-3:</strong></p>
+                <p className="pl-3">• A, B, C all approve → <span className="font-medium text-green-600">Stage passes</span>.</p>
+                <p className="pl-3">• A approves, B approves, C rejects → <span className="font-medium text-red-500">Stage fails</span>. Waits until C responds.</p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 interface StageIssue {
   stageId: number;
@@ -1207,8 +1308,9 @@ function SortableStageCard({
                   </p>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                    <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
                       Rejection Rule
+                      <RejectionRuleHelpDialog />
                     </label>
                     <Select
                       value={stage.rejectionRule}
