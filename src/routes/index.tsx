@@ -731,10 +731,21 @@ function Index() {
       s.map((st) => {
         if (st.id !== id) return st;
         if (checked) {
-          return { ...st, allRequired: true, requiredCount: st.approvers.length };
+          // Switching to All Required: "symmetric" collapses to "unanimous".
+          const rejectionRule =
+            st.rejectionRule === "symmetric" ? "unanimous" : st.rejectionRule;
+          return {
+            ...st,
+            allRequired: true,
+            requiredCount: st.approvers.length,
+            rejectionRule,
+          };
         }
+        // Switching to X of Y: "unanimous" contradicts a partial threshold.
+        const rejectionRule =
+          st.rejectionRule === "unanimous" ? "symmetric" : st.rejectionRule;
         const suggested = Math.max(1, st.approvers.length - 1);
-        return { ...st, allRequired: false, requiredCount: suggested };
+        return { ...st, allRequired: false, requiredCount: suggested, rejectionRule };
       }),
     );
 
