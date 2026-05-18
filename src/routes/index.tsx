@@ -526,6 +526,7 @@ const people = [
 ];
 
 type Mode = "Single" | "Group";
+type RejectionRule = "veto" | "majority" | "approvalOnly";
 
 interface Stage {
   id: number;
@@ -535,6 +536,7 @@ interface Stage {
   requiredCount: number;
   approvers: string[];
   active: boolean;
+  rejectionRule: RejectionRule;
 }
 
 let nextId = 1;
@@ -546,6 +548,7 @@ const newStage = (): Stage => ({
   requiredCount: 1,
   approvers: [""],
   active: true,
+  rejectionRule: "veto",
 });
 
 interface StageIssue {
