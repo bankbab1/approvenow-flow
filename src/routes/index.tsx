@@ -629,6 +629,7 @@ function RejectionRuleHelpDialog() {
                 <p className="pl-3">• Math: max rejections allowed = 3 − 2 = 1.</p>
 
                 <p className="mt-2"><strong className="text-foreground">Edge case 2-of-4:</strong></p>
+                <p className="pl-3">• A approves, B rejects → <span className="font-medium text-yellow-600">Still waiting</span>. Need 1 more approval OR 2 more rejections to decide.</p>
                 <p className="pl-3">• A rejects, B approves, C rejects, D approves → <span className="font-medium text-green-600">Stage passes</span> (2 approvals reached first).</p>
                 <p className="pl-3">• A rejects, B rejects, C rejects → <span className="font-medium text-red-500">Stage fails</span> (3 rejections; 2 approvals now impossible).</p>
                 <p className="pl-3">• Math: max rejections allowed = 4 − 2 + 1 = 3. Approvals win because their threshold (2) is lower.</p>
@@ -648,6 +649,10 @@ function RejectionRuleHelpDialog() {
                 <p><strong className="text-foreground">Scenario 3-of-3:</strong></p>
                 <p className="pl-3">• A, B, C all approve → <span className="font-medium text-green-600">Stage passes</span>.</p>
                 <p className="pl-3">• A approves, B approves, C rejects → <span className="font-medium text-red-500">Stage fails</span>. Waits until C responds.</p>
+
+                <p className="mt-2"><strong className="text-foreground">Edge case 4-of-4 (All Required):</strong></p>
+                <p className="pl-3">• A approves, B approves, C rejects, D rejects → <span className="font-medium text-red-500">Stage fails</span> (only 2/4 approved; 100% approval required).</p>
+                <p className="pl-3">• A approves, B approves, C approves, D approves → <span className="font-medium text-green-600">Stage passes</span> (4/4 = 100%).</p>
               </div>
             </div>
           </div>
