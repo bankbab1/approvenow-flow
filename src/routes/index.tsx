@@ -1274,11 +1274,18 @@ function SortableStageCard({
             </div>
 
             {stage.mode === "Group" && (
-              <div>
-                <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Required Approvals
-                </label>
-                <div className="space-y-2">
+              <div className="space-y-4">
+                {/* Layer 1 — Quorum */}
+                <div className="rounded-md border border-dashed border-border bg-muted/30 p-3">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Badge variant="secondary" className="text-[10px]">Layer 1</Badge>
+                    <span className="text-xs font-semibold text-foreground">
+                      How many people must respond?
+                    </span>
+                  </div>
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    Sets the <strong>quorum</strong> — the minimum number of approvers whose response is needed before a decision can be made.
+                  </p>
                   <div className="flex h-9 items-center gap-3 rounded-md border bg-background px-3">
                     <label className="flex cursor-pointer select-none items-center gap-2 text-sm">
                       <Checkbox
@@ -1312,70 +1319,78 @@ function SortableStageCard({
                       <span>of {stage.approvers.length}</span>
                     </span>
                   </div>
-
-                  <p className="text-xs text-muted-foreground">
-                    Approvers can review in any order. The stage advances once the required number of approvals is met.
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {stage.allRequired
+                      ? `All ${stage.approvers.length} approvers must respond before the stage is decided.`
+                      : `Wait for ${stage.requiredCount} of ${stage.approvers.length} responses, then decide using the rule below.`}
                   </p>
-
-                  <div>
-                    <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                      Rejection Rule
-                      <RejectionRuleHelpDialog />
-                    </label>
-                    <Select
-                      value={stage.rejectionRule}
-                      onValueChange={(v) =>
-                        onUpdate({ rejectionRule: v as RejectionRule })
-                      }
-                    >
-                      <SelectTrigger className="h-9 w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="veto">
-                          Veto on rejection (recommended)
-                        </SelectItem>
-                        <SelectItem value="firstWins">
-                          First response wins (notify others)
-                        </SelectItem>
-                        {!stage.allRequired && (
-                          <SelectItem value="symmetric">
-                            Symmetric threshold (approve N / reject when impossible)
-                          </SelectItem>
-                        )}
-                        {stage.allRequired && (
-                          <SelectItem value="unanimous">
-                            Unanimous decision required
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {stage.rejectionRule === "veto" &&
-                        "Any single rejection fails the stage immediately, even if others have already approved. Safest for high-risk approvals."}
-                      {stage.rejectionRule === "firstWins" &&
-                        "The first action (approve or reject) decides the outcome. Remaining approvers are notified for awareness but cannot change the result. Fastest for low-risk, routine approvals."}
-                      {stage.rejectionRule === "symmetric" &&
-                        `Stage approves when ${stage.allRequired ? stage.approvers.length : stage.requiredCount} approvals are collected, or rejects once enough rejections make that threshold mathematically impossible. Most balanced.`}
-                      {stage.rejectionRule === "unanimous" &&
-                        "Waits for every approver to respond. Approves only if all approve; any rejection fails the stage. Use for critical decisions."}
-                    </p>
-                  </div>
-
-                  {isEffectivelyAll && (
-                    <div className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-                      <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                      <span>
-                        Requiring {stage.requiredCount} of{" "}
-                        {stage.approvers.length} is the same as{" "}
-                        <strong>All Required</strong>.{" "}
-                        {countdown != null
-                          ? `Auto-enabling in ${countdown}s…`
-                          : "Switching automatically…"}
-                      </span>
-                    </div>
-                  )}
                 </div>
+
+                {/* Layer 2 — Decision Rule */}
+                <div className="rounded-md border border-dashed border-border bg-muted/30 p-3">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Badge variant="secondary" className="text-[10px]">Layer 2</Badge>
+                    <span className="flex items-center gap-1 text-xs font-semibold text-foreground">
+                      How is the outcome decided?
+                      <RejectionRuleHelpDialog />
+                    </span>
+                  </div>
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    Once responses come in, this rule turns them into a final <strong>approve</strong> or <strong>reject</strong>.
+                  </p>
+                  <Select
+                    value={stage.rejectionRule}
+                    onValueChange={(v) =>
+                      onUpdate({ rejectionRule: v as RejectionRule })
+                    }
+                  >
+                    <SelectTrigger className="h-9 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="veto">
+                        Veto on rejection (recommended)
+                      </SelectItem>
+                      <SelectItem value="firstWins">
+                        First response wins (notify others)
+                      </SelectItem>
+                      {!stage.allRequired && (
+                        <SelectItem value="symmetric">
+                          Symmetric threshold (approve N / reject when impossible)
+                        </SelectItem>
+                      )}
+                      {stage.allRequired && (
+                        <SelectItem value="unanimous">
+                          Unanimous decision required
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {stage.rejectionRule === "veto" &&
+                      "Any single rejection fails the stage immediately, even if others have already approved. Safest for high-risk approvals."}
+                    {stage.rejectionRule === "firstWins" &&
+                      "The first action (approve or reject) decides the outcome. Remaining approvers are notified for awareness but cannot change the result. Fastest for low-risk, routine approvals."}
+                    {stage.rejectionRule === "symmetric" &&
+                      `Stage approves when ${stage.allRequired ? stage.approvers.length : stage.requiredCount} approvals are collected, or rejects once enough rejections make that threshold mathematically impossible. Most balanced.`}
+                    {stage.rejectionRule === "unanimous" &&
+                      "Waits for every approver to respond. Approves only if all approve; any rejection fails the stage. Use for critical decisions."}
+                  </p>
+                </div>
+
+                {isEffectivelyAll && (
+                  <div className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      Requiring {stage.requiredCount} of{" "}
+                      {stage.approvers.length} is the same as{" "}
+                      <strong>All Required</strong>.{" "}
+                      {countdown != null
+                        ? `Auto-enabling in ${countdown}s…`
+                        : "Switching automatically…"}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>
