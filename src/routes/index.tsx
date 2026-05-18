@@ -1308,8 +1308,9 @@ function SortableStageCard({
                   </p>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                    <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
                       Rejection Rule
+                      <RejectionRuleHelpDialog />
                     </label>
                     <Select
                       value={stage.rejectionRule}
