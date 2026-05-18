@@ -627,6 +627,11 @@ function RejectionRuleHelpDialog() {
                 <p className="pl-3">• A rejects, B approves, C approves → <span className="font-medium text-green-600">Stage passes</span> (2 approvals reached).</p>
                 <p className="pl-3">• A rejects, B rejects → <span className="font-medium text-red-500">Stage fails</span> (only 1 person left, can’t reach 2).</p>
                 <p className="pl-3">• Math: max rejections allowed = 3 − 2 = 1.</p>
+
+                <p className="mt-2"><strong className="text-foreground">Edge case 2-of-4:</strong></p>
+                <p className="pl-3">• A rejects, B approves, C rejects, D approves → <span className="font-medium text-green-600">Stage passes</span> (2 approvals reached first).</p>
+                <p className="pl-3">• A rejects, B rejects, C rejects → <span className="font-medium text-red-500">Stage fails</span> (3 rejections; 2 approvals now impossible).</p>
+                <p className="pl-3">• Math: max rejections allowed = 4 − 2 + 1 = 3. Approvals win because their threshold (2) is lower.</p>
               </div>
             </div>
 
