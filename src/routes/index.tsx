@@ -526,7 +526,7 @@ const people = [
 ];
 
 type Mode = "Single" | "Group";
-type RejectionRule = "veto" | "majority" | "approvalOnly";
+type RejectionRule = "veto" | "firstWins" | "symmetric" | "unanimous";
 
 interface Stage {
   id: number;
