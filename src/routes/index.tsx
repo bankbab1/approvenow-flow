@@ -572,15 +572,38 @@ function RejectionRuleHelpDialog() {
         <HelpCircle className="h-3.5 w-3.5" />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Rejection Rules — Example Scenarios</DialogTitle>
+            <DialogTitle>Group Approval — Two Layers</DialogTitle>
             <DialogDescription>
-              How each rule behaves in common multi-approver situations
+              Group approvals are configured in two independent layers
             </DialogDescription>
           </DialogHeader>
 
+          {/* Two-layer explainer */}
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="rounded-lg border bg-background p-3">
+              <div className="mb-1 flex items-center gap-2">
+                <Badge variant="secondary" className="text-[10px]">Layer 1</Badge>
+                <span className="text-xs font-semibold">Quorum</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                <strong>How many people must respond.</strong> e.g. “2 of 4” = wait for any 2 to respond. “All Required” = wait for everyone.
+              </p>
+            </div>
+            <div className="rounded-lg border bg-background p-3">
+              <div className="mb-1 flex items-center gap-2">
+                <Badge variant="secondary" className="text-[10px]">Layer 2</Badge>
+                <span className="text-xs font-semibold">Decision Rule</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                <strong>How those responses turn into a result.</strong> Veto, First-Wins, Symmetric, or Unanimous — explained below.
+              </p>
+            </div>
+          </div>
+
           <div className="mt-2 space-y-4 text-sm">
+
             {/* Veto */}
             <div className="rounded-lg border bg-muted/40 p-3">
               <div className="mb-1 flex items-center gap-2 font-semibold">
