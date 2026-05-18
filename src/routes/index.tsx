@@ -1210,23 +1210,28 @@ function SortableStageCard({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="veto">
-                          Any rejection vetoes the stage (safest)
+                          Veto on rejection (recommended)
                         </SelectItem>
-                        <SelectItem value="majority">
-                          Wait for majority of responses to decide
+                        <SelectItem value="firstWins">
+                          First response wins (notify others)
                         </SelectItem>
-                        <SelectItem value="approvalOnly">
-                          First to reach approval threshold wins (ignore rejections)
+                        <SelectItem value="symmetric">
+                          Symmetric threshold (approve N / reject when impossible)
+                        </SelectItem>
+                        <SelectItem value="unanimous">
+                          Unanimous decision required
                         </SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {stage.rejectionRule === "veto" &&
-                        "As soon as anyone rejects, the stage fails immediately — even if others have approved."}
-                      {stage.rejectionRule === "majority" &&
-                        "Wait until more than half of approvers respond, then approve or reject by majority."}
-                      {stage.rejectionRule === "approvalOnly" &&
-                        "Stage passes the moment the approval count is reached. Rejections are not counted — first response wins."}
+                        "Any single rejection fails the stage immediately, even if others have already approved. Safest for high-risk approvals."}
+                      {stage.rejectionRule === "firstWins" &&
+                        "The first action (approve or reject) decides the outcome. Remaining approvers are notified for awareness but cannot change the result. Fastest for low-risk, routine approvals."}
+                      {stage.rejectionRule === "symmetric" &&
+                        `Stage approves when ${stage.allRequired ? stage.approvers.length : stage.requiredCount} approvals are collected, or rejects once enough rejections make that threshold mathematically impossible. Most balanced.`}
+                      {stage.rejectionRule === "unanimous" &&
+                        "Waits for every approver to respond. Approves only if all approve; any rejection fails the stage. Use for critical decisions."}
                     </p>
                   </div>
 
